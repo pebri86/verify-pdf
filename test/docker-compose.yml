@@ -1,0 +1,24 @@
+version: '3.1'
+services:
+ adapter:
+  container_name: perisai-adapter
+  image: registry.perurica.co.id:443/keysign/signadapter:latest
+  restart: always
+  privileged: true
+  ports: 
+   - "9044:7777"
+  environment:
+   HASH_URL: https://apgdev.peruri.co.id:9044/gateway/digitalCertificateHashSign/1.0/signingHash/v1
+   CERTIFICATE_CHAIN_URL: https://apgdev.peruri.co.id:9044/gateway/digitalCertificateHashSign/1.0/getCertificateChain/v1
+   TSA_URL: http://timestamp.peruri.co.id/signserver/tsa?workerName=TimeStampSigner1101
+   TZ: Asia/Jakarta
+   UNSIGNED_FOLDER: /sharefolder/UNSIGNED
+   SIGNED_FOLDER: /sharefolder/SIGNED
+   SPC_FOLDER: /sharefolder/SPECIMEN
+   WORKER: 4
+   TIMEOUT: 240
+   GRACEFUL_TIMEOUT: 320
+   KEEP_ALIVE: 30
+  volumes:
+   - /root/logs:/logs
+   - /root/sharefolder:/sharefolder

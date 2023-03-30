@@ -1,0 +1,156 @@
+import aiohttp
+import logging
+import uuid
+import time
+import random
+import string
+from fastapi import FastAPI, Request, Response, status, UploadFile, security, Depends, File, Form, Header, Query
+from fastapi.responses import JSONResponse
+from typing import Union
+from sign_pdf import SigningRequest, SigningResponse, signing_pdf
+from signers import ExternalSignerError
+from config import *
+from errors import ErrCode
+from base64 import b64encode
+from hashlib import sha1
+from os.path import join, exists
+
+# version string
+VERSION = "0.0.1-Alpha"
+
+# setup loggers
+logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
+
+# get root logger
+logger = logging.getLogger('root')
+
+description = """
+Signing adapter for perisai hash signing
+
+"""
+
+tags_metadata = [
+    {
+        "name": "upload",
+        "description": "Service upload PDF document.",
+    },
+    {
+        "name": "sign",
+        "description": "Service operation for signing PDF document.",
+    },
+    {
+        "name": "set specimen",
+        "description": "Service to set default user specimen for digital signature.",
+    },
+    {
+        "name": "get specimen",
+        "description": "Service to get current saved user specimen.",
+    }
+]
+
+app = FastAPI(
+    docs_url="/documentation",
+    redoc_url=None,
+    title="Sign Adapter",
+    description=description,
+    version=VERSION,
+    terms_of_service="https://peruri.co.id/about",
+    contact={
+        "name": "Perum Percetakan Uang Republik Indonesia",
+        "url": "https://www.peruri.co.id/",
+        "email": "cs.digital@peruri.co.id",
+    },
+    openapi_tags=tags_metadata
+)
+
+class UploadResponse(SigningResponse):
+    file_id: str = None
+    original_name: str = None
+    save_as: str = None
+
+async def get_unique_from_str(string):
+    hash_object = sha1(string)
+    return hash_object.hexdigest()
+
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except ExternalSignerError as e:
+        return JSONResponse({"status":"error", "errorCode":f"{e.code}", "message":f"[remote] internal server error: {e.msg}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)     
+    except Exception as e:
+        logger.error(f"exception: {e}")
+        return JSONResponse({"status":"error", "errorCode":"99", "message":f"{ErrCode.ERR_99}: {e.args}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    idem = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    logger.info(f"requestId={idem} start request path={request.url.path}")
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    process_time = (time.time() - start_time) * 1000
+    formatted_process_time = '{0:.2f}'.format(process_time)
+    logger.info(
+        f"requestId={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
+
+    return response
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return {"message": f"Welcome to Signing Adapter {VERSION}", "docUrl": "/documentation"}
+
+@app.get("/v1/specimen/get", status_code=200, response_model=UploadResponse, tags=['get specimen'])
+async def get_specimen(request: Request, response: Response, profile_name: str = Query(alias="profileName")):
+    profile = await get_unique_from_str(bytes(profile_name, 'utf-8'))
+    filename = f"{profile}.png"
+    path = join(SPC_FOLDER, filename)
+    if exists(path):
+        with open(path, "rb") as f:
+            encoded_string = b64encode(f.read()).decode('utf-8')
+            f.close()
+            return JSONResponse({"status":"success", "errorCode":"0", "result": {"fileName":filename, "base64": f"{encoded_string}"}})
+    else:
+        JSONResponse({"status":"error", "errorCode":"84", "message":f"{ErrCode.ERR_84}"})
+
+@app.post("/v1/specimen/set", status_code=201, response_model=UploadResponse, tags=['set specimen'])
+async def set_specimen(request: Request, response: Response, profile_name=Form(alias="profileName"), file: UploadFile=File(None)):
+    try:
+        contents = file.file.read()
+        profile = await get_unique_from_str(bytes(profile_name, 'utf-8'))
+        file_id = f"{profile}.png"
+        with open(join(SPC_FOLDER,file_id), "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return UploadResponse(status="error", error_code="81", message=f"{ErrCode.ERR_81}: {e.args}")
+    finally:
+        file.file.close
+
+    return UploadResponse(status="success", error_code="0", message=f"set specimen success", file_id=f"{profile}", original_name=file.filename, save_as=f"{file_id}")
+
+@app.post("/v1/doc/upload", status_code=201, response_model=UploadResponse, tags=['upload'])
+async def upload(request: Request, response: Response, file: UploadFile=File(None)):
+    try:
+        contents = file.file.read()
+        file_id = uuid.uuid4()
+        with open(f"{UNSIGNED_FOLDER}/{file_id}.pdf", "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return UploadResponse(status="error", error_code="81", message=f"{ErrCode.ERR_81}: {e.args}")
+    finally:
+        file.file.close
+
+    return UploadResponse(status="success", error_code="0", message=f"upload file success", file_id=f"{file_id}", original_name=file.filename, save_as=f"{file_id}.pdf")
+
+auth_scheme = security.HTTPBearer()
+@app.post("/v1/doc/sign", status_code=201, response_model=SigningResponse, tags=['sign'])
+async def sign_pdf(request: Request, req: SigningRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
+    async with aiohttp.ClientSession() as session:
+        result = await signing_pdf(req, session, response, jwtoken=token.credentials, key_id=x_gateway_apikey)
+
+        return result
+
+application = app
