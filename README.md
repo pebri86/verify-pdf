@@ -38,7 +38,7 @@ Adapter service for hash sign ( perisai on premise service )
 
 - run docker image and verify it's running
 ```sh
-# cd docker-compose
-# docker-compose up -d --scale stampadapter=3
+# cd test
+# docker-compose up -d
 # docker ps
 ```
