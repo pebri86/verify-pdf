@@ -31,7 +31,7 @@ logger = logging.getLogger('signing')
 
 
 class Coordinate(MyModel):
-    specimen_image: Optional[str] = "base64 string image specimen"
+    specimen_image: Optional[str] = "base64 string image specimen or filename"
     specimen_qr_data: Optional[str] = "string text to be encoded as QR code"
     specimen_text_data: Optional[str] = "string text to be set as appearance of signature"
     page: Optional[int] = 1
@@ -57,7 +57,7 @@ class SigningResponse(MyModel):
     message: str = None
 
 
-async def checkSource(filePath):
+async def check_source(filePath):
     return os.path.exists(filePath)
 
 
@@ -70,7 +70,7 @@ async def is_base64(string):
 
 async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str):
     in_filename = join(UNSIGNED_FOLDER, req.src)
-    if not await checkSource(in_filename):
+    if not await check_source(in_filename):
         response.status_code = status.HTTP_404_NOT_FOUND
         ret = SigningResponse(status="error", error_code="82",
                               message=ErrCode.ERR_82)
@@ -169,6 +169,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
             margins=Margins(0, 0, 0, 0),
             inner_content_scaling=InnerScaling.STRETCH_TO_FIT
         )
+        
         if image_data != None and image_data != "":
             if await is_base64(image_data):
                 background = images.PdfImage(Image.open(

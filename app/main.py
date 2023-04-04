@@ -6,6 +6,7 @@ import random
 import string
 from fastapi import FastAPI, Request, Response, status, UploadFile, security, Depends, File, Form, Header, Query
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Union
 from sign_pdf import SigningRequest, SigningResponse, signing_pdf
 from signers import ExternalSignerError
@@ -16,7 +17,7 @@ from hashlib import sha1
 from os.path import join, exists
 
 # version string
-VERSION = "0.0.1-Alpha"
+VERSION = "0.0.2-a"
 
 # setup loggers
 logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
@@ -50,7 +51,7 @@ tags_metadata = [
 
 app = FastAPI(
     docs_url="/documentation",
-    redoc_url=None,
+    redoc_url="/redoc",
     title="Sign Adapter",
     description=description,
     version=VERSION,
@@ -61,6 +62,18 @@ app = FastAPI(
         "email": "cs.digital@peruri.co.id",
     },
     openapi_tags=tags_metadata
+)
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class UploadResponse(SigningResponse):
@@ -99,7 +112,7 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return {"message": f"Welcome to Signing Adapter {VERSION}", "docUrl": "/documentation"}
+    return {"message": f"Welcome to Signing Adapter {VERSION}", "docUrl": "/documentation", "redocUrl": "/redoc"}
 
 @app.get("/v1/specimen/get", status_code=200, response_model=UploadResponse, tags=['get specimen'])
 async def get_specimen(request: Request, response: Response, profile_name: str = Query(alias="profileName")):
