@@ -1,3 +1,4 @@
+# create single binary using pyinstaller
 FROM pyinstaller-signadapter:3.9-slim AS compiler
 WORKDIR /code
 COPY app /code/app

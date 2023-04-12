@@ -73,11 +73,11 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
     if not await check_source(in_filename):
         response.status_code = status.HTTP_404_NOT_FOUND
         ret = SigningResponse(status="error", error_code="82",
-                              message=ErrCode.ERR_82)
+                              message=f"{ErrCode.ERR_82}")
         logger.error(ret)
         logger.error(req)
 
-        return
+        return ret
 
     # get certificate chain
     certs = await get_certificate_chain(url=CERTIFICATE_CHAIN_URL,
@@ -92,7 +92,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         profile_name=req.profile_name,
         system_id=req.system_id,
         hash_algorithm=algos.SignedDigestAlgorithm(
-            {"algorithm": "sha256_rsa"}),
+            {"algorithm": "sha512_rsa"}),
         jwtoken=jwtoken,
         key_id=key_id,
         signing_cert=certs[0],
@@ -176,9 +176,16 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
                     BytesIO(b64decode(image_data))),
                     opacity=40)
             else:
-                background = images.PdfImage(
-                    Image.open(join(SPC_FOLDER, image_data)),
-                    opacity=40)
+                image_file = join(SPC_FOLDER, image_data)
+                if await check_source(image_file):
+                    background = images.PdfImage(
+                        Image.open(image_file),
+                        opacity=40)
+                else:
+                    ret = SigningResponse(status="error", error_code="84",
+                              message=f"{ErrCode.ERR_84}")
+                    
+                    return ret
 
         if qr_data != None and qr_data != "":
             style = stamp.QRStampStyle(

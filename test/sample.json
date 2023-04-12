@@ -1,0 +1,18 @@
+{
+    "systemId": "POC-TAM",
+    "profileName": "juan.poc25@yopmail.com",
+    "src": "5d34f40c-9e81-4637-83c3-1b0d84ca32f7.pdf",
+    "docPass": "",
+    "location": "Jakarta",
+    "reason": "I agree to sign",
+    "coordinate": {
+        "specimenImage": "cc7a8551c4a4a536cecf488316b40a7e48314842.png",
+        "specimenQrData": "string text to be encoded as QR code",
+        "specimenTextData": "",
+        "page": 1,
+        "llx": 98.22780283870698,
+        "lly": 570.2824588124771,
+        "urx": 469.12076796670533,
+        "ury": 715.414488645172
+    }
+}

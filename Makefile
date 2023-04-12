@@ -18,4 +18,4 @@ clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf app/__pycache__
-	rm server.spec
+	rm -f server.spec

@@ -5,7 +5,7 @@ import time
 import random
 import string
 from fastapi import FastAPI, Request, Response, status, UploadFile, security, Depends, File, Form, Header, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Union
 from sign_pdf import SigningRequest, SigningResponse, signing_pdf
@@ -17,7 +17,7 @@ from hashlib import sha1
 from os.path import join, exists
 
 # version string
-VERSION = "0.0.2-a"
+VERSION = "0.0.4-a"
 
 # setup loggers
 logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
@@ -32,7 +32,7 @@ Signing adapter for perisai hash signing
 
 tags_metadata = [
     {
-        "name": "upload",
+        "name": "upload pdf",
         "description": "Service upload PDF document.",
     },
     {
@@ -46,6 +46,10 @@ tags_metadata = [
     {
         "name": "get specimen",
         "description": "Service to get current saved user specimen.",
+    },
+    {
+        "name": "download signed pdf",
+        "description": "Service to get signed pdf document.",
     }
 ]
 
@@ -92,8 +96,13 @@ async def catch_exceptions_middleware(request: Request, call_next):
     except ExternalSignerError as e:
         return JSONResponse({"status":"error", "errorCode":f"{e.code}", "message":f"[remote] internal server error: {e.msg}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)     
     except Exception as e:
+        err_msg = ""
+        if len(e.args) > 1:
+            err_msg = e.args[1]
+        else:
+            err_msg = e.args[0]
         logger.error(f"exception: {e}")
-        return JSONResponse({"status":"error", "errorCode":"99", "message":f"{ErrCode.ERR_99}: {e.args}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JSONResponse({"status":"error", "errorCode":"99", "message":f"{ErrCode.ERR_99}: {err_msg}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -143,7 +152,7 @@ async def set_specimen(request: Request, response: Response, profile_name=Form(a
 
     return UploadResponse(status="success", error_code="0", message=f"set specimen success", file_id=f"{profile}", original_name=file.filename, save_as=f"{file_id}")
 
-@app.post("/v1/doc/upload", status_code=201, response_model=UploadResponse, tags=['upload'])
+@app.post("/v1/doc/upload", status_code=201, response_model=UploadResponse, tags=['upload pdf'])
 async def upload(request: Request, response: Response, file: UploadFile=File(None)):
     try:
         contents = file.file.read()
@@ -157,6 +166,16 @@ async def upload(request: Request, response: Response, file: UploadFile=File(Non
         file.file.close
 
     return UploadResponse(status="success", error_code="0", message=f"upload file success", file_id=f"{file_id}", original_name=file.filename, save_as=f"{file_id}.pdf")
+
+@app.get("/v1/doc/download", status_code=200, tags=['download signed pdf'])
+async def download(request: Request, response: Response, id_file: str = Query(alias="idFile")):
+    file_name = f"signed_{id_file}.pdf"
+    file_path = join(SIGNED_FOLDER, file_name)
+    if exists(file_path):
+        return FileResponse(path=file_path, status_code=200, filename=file_name, media_type="application/pdf")
+    
+    response.status_code = status.HTTP_404_NOT_FOUND
+    return UploadResponse(status="error", error_code="85", message=f"{ErrCode.ERR_85}", file_id=id_file)
 
 auth_scheme = security.HTTPBearer()
 @app.post("/v1/doc/sign", status_code=201, response_model=SigningResponse, tags=['sign'])
