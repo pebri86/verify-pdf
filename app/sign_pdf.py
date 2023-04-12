@@ -92,7 +92,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         profile_name=req.profile_name,
         system_id=req.system_id,
         hash_algorithm=algos.SignedDigestAlgorithm(
-            {"algorithm": "sha512_rsa"}),
+            {"algorithm": "sha256_rsa"}),
         jwtoken=jwtoken,
         key_id=key_id,
         signing_cert=certs[0],
