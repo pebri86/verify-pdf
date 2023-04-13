@@ -142,7 +142,7 @@ Before installing Docker Engine for the first time on a new host machine, you ne
  Start the Docker container by running the following command with sudo:
 
  ```bash
- $ sudo docker-compose up -d
+ $ sudo docker compose up -d
  ```
 
  To verify that the container is running, use the following command:
