@@ -55,6 +55,7 @@ Before you install Docker Engine for the first time on a new host machine, you n
  ```
  
 #### Install Docker Engine
+
 1. Update the apt package index:
 
  ```bash
@@ -77,6 +78,7 @@ Before you install Docker Engine for the first time on a new host machine, you n
 ## Installation of signing adapter docker image
 
 ### prerequisite
+
 1. Create directory for document storage 
  ```bash
  $ sudo mkdir -p /root/logs
@@ -156,4 +158,4 @@ Before you install Docker Engine for the first time on a new host machine, you n
     redocUrl: "/redoc"
 }
  ```
- the documentgation could be accessed at /documentation for swagger-ui interface or /redoc for redoc interface
+ the documentation could be accessed at /documentation endpoint for swagger-ui interface or /redoc endpoint for redoc interface
