@@ -3,8 +3,8 @@
 ## Signing Adapter Docker Image
 ## version 1.0
 
-## Pre-requisite
-- Server or VM Server minimum requirements
+## Prerequisites
+- Minimum requirements for server or VM server:
 
 |Specification    |Minimum requirement    |
 |----|----|
@@ -14,17 +14,16 @@
 |Operating System|Any Linux|
 
 ## Installation of docker engine
-This manual using docker on Ubuntu Linux Operating System,
-for other linux distro or operating system refer to this official docker installation documentation https://docs.docker.com/engine/install/
+This manual uses Docker on Ubuntu Linux Operating System. For other Linux distributions or operating systems, refer to the official Docker installation documentation at https://docs.docker.com/engine/install/
 
-### uninstall old version if any
-Older versions of Docker went by the names of docker, docker.io, or docker-engine, you might also have installations of containerd or runc. Uninstall any such older versions before attempting to install a new version:
+### Uninstall old version (if any)
+Older versions of Docker were known as docker, docker.io, or docker-engine, and you might also have installations of containerd or runc. Uninstall any such older versions before attempting to install a new version:
 ```bash
 $ sudo apt-get remove docker docker-engine docker.io containerd runc
 ```
 
 ### Install using the apt repository
-Before you install Docker Engine for the first time on a new host machine, you need to set up the Docker repository. Afterward, you can install and update Docker from the repository.
+Before installing Docker Engine for the first time on a new host machine, you need to set up the Docker repository. Afterward, you can install and update Docker from the repository.
 
 #### Set up the repository
 1. Update the apt package index and install packages to allow apt to use a repository over HTTPS:
@@ -48,8 +47,7 @@ Before you install Docker Engine for the first time on a new host machine, you n
 
  ```bash
  $ echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings /docker.gpg] \
-  https://download.docker.com/linux/ubuntu \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings /docker.gpg] https://download.docker.com/linux/ubuntu \
   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
  ```
@@ -70,16 +68,19 @@ Before you install Docker Engine for the first time on a new host machine, you n
     containerd.io docker-buildx-plugin \
     docker-compose-plugin
  ```
+
 3. Verify that the Docker Engine installation is successful by running the hello-world image:
+
  ```bash
  $ sudo docker run hello-world
  ```
  
-## Installation of signing adapter docker image
+## Installing the Signing Adapter Docker Image
 
-### prerequisite
+### Prerequisites
 
-1. Create directory for document storage 
+1. Create directories for document storage
+
  ```bash
  $ sudo mkdir -p /root/logs
  $ sudo mkdir -p /root/sharefolder
@@ -87,24 +88,28 @@ Before you install Docker Engine for the first time on a new host machine, you n
  $ sudo mkdir -p /root/sharefolder/UNSIGNED 
  $ sudo mkdir -p /root/sharefolder/SPECIMEN
  ```
- ** note: on production these folder maybe located in NFS storage or similar
+ ** Note: On production, these directories may be located in NFS storage or similar.
  
-2. Create folder for project file on your home folder and change directory to created directory
+2. Create a directory for the project file on your home directory and change directory to the created directory
+
  ```bash
  $ cd $HOME
  $ mkdir -p signadapter
  $ cd signadapter
  ```
  
-3. Create docker-compose.yml configuration file to running container using docker compose
+3. Create a docker-compose.yml configuration file to run the container using docker-compose
+
  ```bash
  $ touch docker-compose.yml
  ```
  edit using your favorite text editor
+
  ```bash
  $ nano docker-compose.yml
  ```
- write this configuration and save file
+ write this configuration and save the file
+
  ```yaml
  version: '3.1'
     services:
@@ -132,25 +137,31 @@ Before you install Docker Engine for the first time on a new host machine, you n
                 - /root/logs:/logs
                 - /root/sharefolder:/sharefolder
  ```
-4. Run the container
+4. To run the Docker container:
 
- Run the docker container using docker compose
+ Start the Docker container by running the following command with sudo:
+
  ```bash
  $ sudo docker-compose up -d
  ```
- verify the running docker container
+
+ To verify that the container is running, use the following command:
+
  ```bash
  $ sudo docker ps
  ```
- here the sample output
+
+ The output should be similar to this:
+
  ```bash
  CONTAINER ID   IMAGE                                                      COMMAND                CREATED        STATUS                       PORTS                              NAMES
 8ba281c25a23   registry.perurica.co.id:443/keysign/signadapter:latest     "/bin/app"             3 hours ago    Up About an hour             0.0.0.0:9044->7777/tcp             perisai-adapter
  ```
  
-5. Verify using browser and access documentation
+5. To access the documentation using a browser:
  
- Type at the address bar of browser http://vm-or-server-ip-address:9044 you will welcome by json message
+ Type the following URL into the address bar of your browser: http://vm-or-server-ip-address:9044. You should see a JSON message that says:
+
  ```json
  {
     message: "Welcome to Signing Adapter 0.0.5-a",
@@ -158,4 +169,5 @@ Before you install Docker Engine for the first time on a new host machine, you n
     redocUrl: "/redoc"
 }
  ```
- the documentation could be accessed at /documentation endpoint for swagger-ui interface or /redoc endpoint for redoc interface
+
+ To access the Swagger-UI interface, go to /documentation. To access the Redoc interface, go to /redoc.
