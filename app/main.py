@@ -17,7 +17,7 @@ from hashlib import sha1
 from os.path import join, exists
 
 # version string
-VERSION = "0.0.4-a"
+VERSION = "0.0.5-a"
 
 # setup loggers
 logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
@@ -107,7 +107,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     idem = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    logger.info(f"requestId={idem} start request path={request.url.path}")
+    logger.info(f"request_id={idem} start request path={request.url.path}")
     start_time = time.time()
 
     response = await call_next(request)
@@ -115,7 +115,7 @@ async def log_requests(request: Request, call_next):
     process_time = (time.time() - start_time) * 1000
     formatted_process_time = '{0:.2f}'.format(process_time)
     logger.info(
-        f"requestId={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
+        f"request_id={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
 
     return response
 

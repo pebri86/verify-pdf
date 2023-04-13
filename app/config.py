@@ -18,6 +18,7 @@ KEEP_ALIVE = os.getenv("KEEP_ALIVE", 20)
 UNSIGNED_FOLDER = os.getenv("UNSIGNED_FOLDER", "/sharefolder/UNSIGNED")
 SIGNED_FOLDER = os.getenv("SIGNED_FOLDER", "/sharefolder/SIGNED")
 SPC_FOLDER = os.getenv("SPC_FOLDER", "/sharefolder/SPECIMEN")
+KEYSTORE = os.getenv("KEYSTORE", "/certs")
 
 # Internal configs
 LOG_CONFIG = os.getenv("LOG_CONFIG", "/conf/logging.conf")

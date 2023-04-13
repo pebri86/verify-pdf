@@ -1,7 +1,7 @@
 import logging
 import time
 from fastapi import Response, status
-from asn1crypto import algos
+from asn1crypto import algos, x509
 from pyhanko_certvalidator import ValidationContext
 from pyhanko.sign.timestamps.aiohttp_client import AIOHttpTimeStamper
 from pyhanko_certvalidator.fetchers.aiohttp_fetchers import AIOHttpFetcherBackend
@@ -10,6 +10,7 @@ from pyhanko.pdf_utils.reader import PdfFileReader
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.sign import signers, fields
 from pyhanko.sign.fields import SigSeedSubFilter, MDPPerm
+from pyhanko.sign.general import load_cert_from_pemder
 from pyhanko import stamp
 from pyhanko.pdf_utils import images
 from pyhanko.pdf_utils.layout import SimpleBoxLayoutRule, AxisAlignment, InnerScaling, Margins
@@ -99,8 +100,14 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         other_certs=certs
     )
 
+    tsa_root = []
+    for cer in os.listdir(join(KEYSTORE)):
+        in_cer = load_cert_from_pemder(join(KEYSTORE, cer))
+        tsa_root.append(in_cer)
+
     validation_context = ValidationContext(
         trust_roots=certs,
+        extra_trust_roots=tsa_root,
         fetcher_backend=AIOHttpFetcherBackend(session),
         allow_fetching=True
     )
@@ -169,7 +176,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
             margins=Margins(0, 0, 0, 0),
             inner_content_scaling=InnerScaling.STRETCH_TO_FIT
         )
-        
+
         if image_data != None and image_data != "":
             if await is_base64(image_data):
                 background = images.PdfImage(Image.open(
@@ -183,8 +190,8 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
                         opacity=40)
                 else:
                     ret = SigningResponse(status="error", error_code="84",
-                              message=f"{ErrCode.ERR_84}")
-                    
+                                          message=f"{ErrCode.ERR_84}")
+
                     return ret
 
         if qr_data != None and qr_data != "":
@@ -221,4 +228,4 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         with open(join(SIGNED_FOLDER, out_filename), 'wb') as outf:
             await pdf_signer.async_sign_pdf(w, output=outf, appearance_text_params={'url': qr_data})
 
-        return SigningResponse(status="success", errorCode="0", message=f"signing success filename: {out_filename}")
+        return SigningResponse(status="success", errorCode="0", message=f"signing success, filename: {out_filename}")

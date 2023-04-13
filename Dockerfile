@@ -13,7 +13,7 @@ RUN pyinstaller -y -F --paths=app \
     && mkdir -p /code/sharefolder \
     && mkdir -p /code/sharefolder/UNSIGNED \
     && mkdir -p /code/sharefolder/SIGNED \
-    && mkdir -p /code/sharefolder/SPECIMEN
+    && mkdir -p /code/sharefolder/SPECIMEN 
 
 # create from scratch base image
 FROM scratch
@@ -25,6 +25,7 @@ COPY --from=compiler /code/sharefolder /sharefolder
 COPY --from=compiler /code/tmp /tmp
 COPY --from=compiler /usr/share/zoneinfo /usr/share/zoneinfo
 COPY conf/logging.conf /conf/logging.conf
+COPY certs /certs
 # expose port
 EXPOSE 7777
 # app entrypoint

@@ -15,6 +15,7 @@ services:
    UNSIGNED_FOLDER: /sharefolder/UNSIGNED
    SIGNED_FOLDER: /sharefolder/SIGNED
    SPC_FOLDER: /sharefolder/SPECIMEN
+   KEYSTORE: /certs
    WORKER: 4
    TIMEOUT: 240
    GRACEFUL_TIMEOUT: 320
