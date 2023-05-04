@@ -169,14 +169,6 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
             docmdp_permissions=permission,
             certify=certify
         )
-
-        background_layout = SimpleBoxLayoutRule(
-            x_align=AxisAlignment.ALIGN_MID,
-            y_align=AxisAlignment.ALIGN_MID,
-            margins=Margins(0, 0, 0, 0),
-            inner_content_scaling=InnerScaling.STRETCH_TO_FIT
-        )
-
         if image_data != None and image_data != "":
             if await is_base64(image_data):
                 background = images.PdfImage(Image.open(
@@ -194,25 +186,48 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
 
                     return ret
 
+        if stamp_text != None and stamp_text != "":
+            background_layout = SimpleBoxLayoutRule(
+                x_align=AxisAlignment.ALIGN_MID,
+                y_align=AxisAlignment.ALIGN_MID,
+                margins=Margins(0, 0, 0, 20),
+                inner_content_scaling=InnerScaling.STRETCH_TO_FIT
+            )
+        else:
+            background_layout = SimpleBoxLayoutRule(
+                x_align=AxisAlignment.ALIGN_MID,
+                y_align=AxisAlignment.ALIGN_MID,
+                margins=Margins(0, 0, 0, 0),
+                inner_content_scaling=InnerScaling.STRETCH_TO_FIT
+            )
+
         if qr_data != None and qr_data != "":
+            inner_content_layout = SimpleBoxLayoutRule(
+                x_align=AxisAlignment.ALIGN_MIN,
+                y_align=AxisAlignment.ALIGN_MIN,
+                inner_content_scaling=InnerScaling.STRETCH_TO_FIT,
+                margins=Margins(0, 0, 0, 0)
+            )
             style = stamp.QRStampStyle(
                 border_width=0,
                 stamp_text=stamp_text,
                 background=background,
                 background_layout=background_layout,
                 background_opacity=0.4,
-                inner_content_layout=SimpleBoxLayoutRule(
-                    x_align=AxisAlignment.ALIGN_MIN,
-                    y_align=AxisAlignment.ALIGN_MID,
-                    inner_content_scaling=InnerScaling.STRETCH_TO_FIT,
-                    margins=Margins(0, 0, 0, 0)
-                )
+                inner_content_layout=inner_content_layout
             )
         else:
+            inner_content_layout = SimpleBoxLayoutRule(
+                x_align=AxisAlignment.ALIGN_MID,
+                y_align=AxisAlignment.ALIGN_MIN,
+                inner_content_scaling=InnerScaling.STRETCH_TO_FIT,
+                margins=Margins(0, 0, 0, 0)
+            )
             style = stamp.TextStampStyle(
                 border_width=0,
                 stamp_text=stamp_text,
                 background_layout=background_layout,
+                inner_content_layout=inner_content_layout,
                 background=background,
                 background_opacity=0.4
             )
