@@ -17,7 +17,7 @@ from hashlib import sha1
 from os.path import join, exists
 
 # version string
-VERSION = "0.0.6-a"
+VERSION = "0.0.7-a"
 
 # setup loggers
 logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)

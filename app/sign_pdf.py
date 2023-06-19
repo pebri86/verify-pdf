@@ -32,9 +32,10 @@ logger = logging.getLogger('signing')
 
 
 class Coordinate(MyModel):
-    specimen_image: Optional[str] = "base64 string image specimen or filename"
-    specimen_qr_data: Optional[str] = "string text to be encoded as QR code"
-    specimen_text_data: Optional[str] = "string text to be set as appearance of signature"
+    is_base64: Optional[bool] = False
+    specimen_image: Optional[str] = ""
+    specimen_qr_data: Optional[str] = ""
+    specimen_text_data: Optional[str] = ""
     page: Optional[int] = 1
     llx: Optional[float] = 0
     lly: Optional[float] = 0
@@ -60,14 +61,6 @@ class SigningResponse(MyModel):
 
 async def check_source(filePath):
     return os.path.exists(filePath)
-
-
-async def is_base64(string):
-    try:
-        return b64encode(b64decode(string+'==')) == string
-    except Exception:
-        return False
-
 
 async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str):
     in_filename = join(UNSIGNED_FOLDER, req.src)
@@ -139,6 +132,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         background = None
         image_data = None
         if req.coordinate:
+            is_base64 = req.coordinate.is_base64
             stamp_text = req.coordinate.specimen_text_data
             qr_data = req.coordinate.specimen_qr_data
             image_data = req.coordinate.specimen_image
@@ -170,7 +164,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
             certify=certify
         )
         if image_data != None and image_data != "":
-            if await is_base64(image_data):
+            if is_base64:
                 background = images.PdfImage(Image.open(
                     BytesIO(b64decode(image_data))),
                     opacity=40)
@@ -181,6 +175,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
                         Image.open(image_file),
                         opacity=40)
                 else:
+                    response.status_code = status.HTTP_404_NOT_FOUND
                     ret = SigningResponse(status="error", error_code="84",
                                           message=f"{ErrCode.ERR_84}")
 
