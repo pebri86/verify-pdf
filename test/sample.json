@@ -6,6 +6,7 @@
     "location": "Jakarta",
     "reason": "I agree to sign",
     "coordinate": {
+        "isBase64": false,
         "specimenImage": "cc7a8551c4a4a536cecf488316b40a7e48314842.png",
         "specimenQrData": "string text to be encoded as QR code",
         "specimenTextData": "",
