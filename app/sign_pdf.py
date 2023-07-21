@@ -32,16 +32,17 @@ logger = logging.getLogger('signing')
 
 
 class Coordinate(MyModel):
-    is_base64: Optional[bool] = False
-    specimen_image: Optional[str] = ""
-    specimen_qr_data: Optional[str] = ""
-    specimen_text_data: Optional[str] = ""
     page: Optional[int] = 1
     llx: Optional[float] = 0
     lly: Optional[float] = 0
     urx: Optional[float] = 0
     ury: Optional[float] = 0
-
+    
+class SigningCoordinate(Coordinate):
+    is_base64: Optional[bool] = False
+    specimen_image: Optional[str] = ""
+    specimen_qr_data: Optional[str] = ""
+    specimen_text_data: Optional[str] = ""    
 
 class SigningRequest(MyModel):
     system_id: str = "SYSTEM-ID"
@@ -50,8 +51,7 @@ class SigningRequest(MyModel):
     doc_pass: str = "document password"
     location: str = "Jakarta"
     reason: str = "I agree to sign"
-    coordinate: Optional[Coordinate]
-
+    coordinate: Optional[SigningCoordinate]
 
 class SigningResponse(MyModel):
     status: str
