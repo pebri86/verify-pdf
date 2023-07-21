@@ -26,8 +26,9 @@ class ExternalSigner(Signer):
                  hash_algorithm: algos.SignedDigestAlgorithm,
                  jwtoken: str,
                  key_id: str,
-                 signing_cert: x509.Certificate,
-                 other_certs=()
+                 signing_cert: x509.Certificate,                 
+                 terra: bool,
+                 other_certs=(),
                  ):
         self.signing_url = signing_url
         self.profile_name = profile_name
@@ -37,6 +38,7 @@ class ExternalSigner(Signer):
         self.key_id = key_id
         self.signing_cert = signing_cert
         self.cert_registry = cr = SimpleCertificateStore()
+        self.terra = terra
         cr.register_multiple(other_certs)
         super().__init__()
 
@@ -50,11 +52,15 @@ class ExternalSigner(Signer):
             "x-Gateway-APIKey": self.key_id,
             "Authorization": "Bearer {}".format(self.jwtoken)
         }
+        signing_type = "SIGNING"
+        if self.terra:
+            signing_type = "TERRA"
         payloads = {
             "requestSigning": {
                 "data": str(b64encode(data), 'UTF-8'),
                 "email": self.profile_name,
-                "systemId": self.system_id
+                "systemId": self.system_id,
+                "type": signing_type
             }
         }
 
@@ -62,6 +68,7 @@ class ExternalSigner(Signer):
         if r.status_code == 200:
             resp = r.json()
             if resp["resultCode"] == "0":
+                logger.info(f"success with orderId = {resp['data']['orderId']}")
                 signature = b64decode(resp["data"]["signedHash"] + '==')
                 assert isinstance(signature, bytes)
 

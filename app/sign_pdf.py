@@ -16,10 +16,9 @@ from pyhanko.pdf_utils import images
 from pyhanko.pdf_utils.layout import SimpleBoxLayoutRule, AxisAlignment, InnerScaling, Margins
 from io import BytesIO
 from PIL import Image
-from base64 import b64decode, b64encode
-from typing import Optional
+from base64 import b64decode
 from os.path import join
-from mymodel import MyModel
+from mymodel import SigningRequest, SigningResponse
 from config import *
 from errors import ErrCode
 from signers import ExternalSigner, get_certificate_chain
@@ -30,39 +29,10 @@ logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
 # get root logger
 logger = logging.getLogger('signing')
 
-
-class Coordinate(MyModel):
-    page: Optional[int] = 1
-    llx: Optional[float] = 0
-    lly: Optional[float] = 0
-    urx: Optional[float] = 0
-    ury: Optional[float] = 0
-    
-class SigningCoordinate(Coordinate):
-    is_base64: Optional[bool] = False
-    specimen_image: Optional[str] = ""
-    specimen_qr_data: Optional[str] = ""
-    specimen_text_data: Optional[str] = ""    
-
-class SigningRequest(MyModel):
-    system_id: str = "SYSTEM-ID"
-    profile_name: str = "name@example.com"
-    src: str = "daca074c-e113-46b0-8fca-8b2e608f6f18.pdf"
-    doc_pass: str = "document password"
-    location: str = "Jakarta"
-    reason: str = "I agree to sign"
-    coordinate: Optional[SigningCoordinate]
-
-class SigningResponse(MyModel):
-    status: str
-    error_code: str
-    message: str = None
-
-
 async def check_source(filePath):
     return os.path.exists(filePath)
 
-async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str):
+async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str, terra: bool=False):
     in_filename = join(UNSIGNED_FOLDER, req.src)
     if not await check_source(in_filename):
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -90,7 +60,8 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         jwtoken=jwtoken,
         key_id=key_id,
         signing_cert=certs[0],
-        other_certs=certs
+        other_certs=certs,
+        terra=terra
     )
 
     tsa_root = []
