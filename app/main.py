@@ -51,16 +51,20 @@ tags_metadata = [
         "description": "Service upload PDF document.",
     },
     {
-        "name": "sign",
-        "description": "Service operation for signing PDF document.",
-    },
-    {
         "name": "set specimen",
         "description": "Service to set default user specimen for digital signature.",
     },
     {
         "name": "get specimen",
         "description": "Service to get current saved user specimen.",
+    },
+    {
+        "name": "sign",
+        "description": "Service operation for signing PDF document.",
+    },
+    {
+        "name": "terra",
+        "description": "Service operation for terra (digital stamp) PDF document.",
     },
     {
         "name": "download signed pdf",
@@ -96,6 +100,7 @@ app.add_middleware(
 )
 
 auth_scheme = security.HTTPBearer()
+
 
 async def get_unique_from_str(string):
     hash_object = sha1(string)
@@ -173,7 +178,8 @@ async def get_token(req: TokenRequest, response: Response, x_gateway_apikey: Uni
         logger.error(f'HTTP requests error with code {r.status_code}')
         logger.error(f'URL {r.url}')
         raise ExternalSignerError(code=r.status_code, msg=r.reason)
-    
+
+
 @app.post("/v1/auth/session/init", status_code=200, tags=["session initiate"])
 async def get_token(request: Request, req: SessionInitRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
     header = {
@@ -209,7 +215,8 @@ async def get_token(request: Request, req: SessionInitRequest, response: Respons
         logger.error(f'HTTP requests error with code {r.status_code}')
         logger.error(f'URL {r.url}')
         raise ExternalSignerError(code=r.status_code, msg=r.reason)
-    
+
+
 @app.post("/v1/auth/session/validate", status_code=200, tags=["session validate"])
 async def get_token(request: Request, req: SessionValidateRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
     header = {
@@ -305,10 +312,18 @@ async def download(request: Request, response: Response, id_file: str = Query(al
     response.status_code = status.HTTP_404_NOT_FOUND
     return UploadResponse(status="error", error_code="85", message=f"{ErrCode.ERR_85}", file_id=id_file)
 
+
 @app.post("/v1/doc/sign", status_code=201, response_model=SigningResponse, tags=['sign'])
 async def sign_pdf(request: Request, req: SigningRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
     async with aiohttp.ClientSession() as session:
         result = await signing_pdf(req, session, response, jwtoken=token.credentials, key_id=x_gateway_apikey)
+
+        return result
+    
+@app.post("/v1/doc/terra", status_code=201, response_model=SigningResponse, tags=['terra'])
+async def sign_pdf(request: Request, req: SigningRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
+    async with aiohttp.ClientSession() as session:
+        result = await signing_pdf(req, session, response, jwtoken=token.credentials, key_id=x_gateway_apikey, terra=True)
 
         return result
 

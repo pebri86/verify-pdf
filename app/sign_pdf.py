@@ -114,6 +114,13 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
                 req.coordinate.urx,
                 req.coordinate.ury
             )
+        
+        permission = MDPPerm.FILL_FORMS
+        certify = False
+        
+        if terra:
+            certify = True
+            
         fields.append_signature_field(
             w, sig_field_spec=fields.SigFieldSpec(
                 sigName,
@@ -121,14 +128,12 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
                 box=box
             )
         )
-        permission = MDPPerm.FILL_FORMS
-        certify = False
 
         meta = signers.PdfSignatureMetadata(
             field_name=sigName,
             reason=req.reason,
             location=req.location,
-            subfilter=SigSeedSubFilter.PADES,
+            subfilter=SigSeedSubFilter.ADOBE_PKCS7_DETACHED,
             validation_context=validation_context,
             embed_validation_info=True,
             docmdp_permissions=permission,
