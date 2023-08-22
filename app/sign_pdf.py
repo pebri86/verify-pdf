@@ -131,9 +131,10 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
 
         meta = signers.PdfSignatureMetadata(
             field_name=sigName,
+            app_build_props=signers.pdf_byterange.BuildProps(name=APP_NAME, revision=VERSION),
             reason=req.reason,
             location=req.location,
-            subfilter=SigSeedSubFilter.ADOBE_PKCS7_DETACHED,
+            subfilter=SigSeedSubFilter.PADES,
             validation_context=validation_context,
             embed_validation_info=True,
             docmdp_permissions=permission,

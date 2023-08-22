@@ -18,9 +18,7 @@ from hashlib import sha1
 from os.path import join, exists
 from mymodel import SigningRequest, SigningResponse, TokenRequest, UploadResponse, SessionInitRequest, SessionValidateRequest
 from requests import post
-
-# version string
-VERSION = "0.0.8-b"
+from contextlib import asynccontextmanager
 
 # setup loggers
 logging.config.fileConfig(LOG_CONFIG, disable_existing_loggers=False)
@@ -72,10 +70,16 @@ tags_metadata = [
     }
 ]
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info(f"Starting services {APP_NAME} version {VERSION}...")
+    yield
+    logger.info("Shutting down services...")
+
 app = FastAPI(
     docs_url="/documentation",
     redoc_url="/redoc",
-    title="Signing Adapter",
+    title=APP_NAME,
     description=description,
     version=VERSION,
     terms_of_service="https://peruri.co.id/about",
@@ -84,7 +88,8 @@ app = FastAPI(
         "url": "https://www.peruri.co.id/",
         "email": "cs.digital@peruri.co.id",
     },
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
+    lifespan=lifespan
 )
 
 origins = [
