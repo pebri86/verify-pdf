@@ -35,4 +35,4 @@ RESOURCES_DIR = os.getenv("RESOURCES_DIR", "/sharefolder/")
 # Application Name
 APP_NAME = "Perisai SignAdapter"
 # Application Version String
-VERSION = "0.0.8-b"
+VERSION = "1.0.0-RC1"
