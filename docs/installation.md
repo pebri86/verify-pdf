@@ -121,8 +121,12 @@ services:
       ports: 
       - "9044:7777"
       environment:
-         HASH_URL: https://apgdev.peruri.co.id:9044/gateway/digitalCertificateHashSign/1.0/signingHash/v1
-         CERTIFICATE_CHAIN_URL: https://apgdev.peruri.co.id:9044/gateway/digitalCertificateHashSign/1.0/getCertificateChain/v1
+         TOKEN_URL: https://apgdev.peruri.co.id:9044/gateway/jwtSandbox/1.0/getJsonWebToken/v1
+         SESSION_INIT_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionInitiate/v1
+         SESSION_VALIDATE_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionValidation/v1
+         HASH_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/signingHashShield/v1
+         CERTIFICATE_CHAIN_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChain/v1
+         CERTIFICATE_CHAIN_TERA_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChainTera/v1
          TSA_URL: http://timestamp.peruri.co.id/signserver/tsa?workerName=TimeStampSigner1101
          TZ: Asia/Jakarta
          UNSIGNED_FOLDER: /sharefolder/UNSIGNED
@@ -164,7 +168,7 @@ services:
 
  ```json
  {
-    message: "Welcome to Signing Adapter 0.0.5-a",
+    message: "Welcome to Signing Adapter 1.0.0-RC1",
     docUrl: "/documentation",
     redocUrl: "/redoc"
 }
