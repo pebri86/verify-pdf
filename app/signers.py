@@ -27,7 +27,7 @@ class ExternalSigner(Signer):
                  jwtoken: str,
                  key_id: str,
                  signing_cert: x509.Certificate,                 
-                 terra: bool,
+                 tera: bool,
                  other_certs=(),
                  ):
         self.signing_url = signing_url
@@ -38,7 +38,7 @@ class ExternalSigner(Signer):
         self.key_id = key_id
         self.signing_cert = signing_cert
         self.cert_registry = cr = SimpleCertificateStore()
-        self.terra = terra
+        self.tera = tera
         cr.register_multiple(other_certs)
         super().__init__()
 
@@ -52,15 +52,15 @@ class ExternalSigner(Signer):
             "x-Gateway-APIKey": self.key_id,
             "Authorization": "Bearer {}".format(self.jwtoken)
         }
-        signing_type = "SIGNING"
-        if self.terra:
-            signing_type = "TERRA"
+        signature_type = "SIGNING"
+        if self.tera:
+            signature_type = "TERA"
         payloads = {
             "requestSigning": {
                 "data": str(b64encode(data), 'UTF-8'),
                 "email": self.profile_name,
                 "systemId": self.system_id,
-                "type": signing_type
+                "type": signature_type
             }
         }
 

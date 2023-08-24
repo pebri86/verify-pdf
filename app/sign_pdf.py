@@ -32,7 +32,7 @@ logger = logging.getLogger('signing')
 async def check_source(filePath):
     return os.path.exists(filePath)
 
-async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str, terra: bool=False):
+async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken: str, key_id: str, tera: bool=False):
     in_filename = join(UNSIGNED_FOLDER, req.src)
     if not await check_source(in_filename):
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -42,9 +42,12 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         logger.error(req)
 
         return ret
-
+    
+    url = CERTIFICATE_CHAIN_URL
+    if tera:
+        url = CERTIFICATE_CHAIN_TERA_URL
     # get certificate chain
-    certs = await get_certificate_chain(url=CERTIFICATE_CHAIN_URL,
+    certs = await get_certificate_chain(url=url,
                                         profile_name=req.profile_name,
                                         system_id=req.system_id,
                                         key_id=key_id,
@@ -61,7 +64,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         key_id=key_id,
         signing_cert=certs[0],
         other_certs=certs,
-        terra=terra
+        tera=tera
     )
 
     tsa_root = []
@@ -118,7 +121,7 @@ async def signing_pdf(req: SigningRequest, session, response: Response, jwtoken:
         permission = MDPPerm.FILL_FORMS
         certify = False
         
-        if terra:
+        if tera:
             certify = True
             
         fields.append_signature_field(

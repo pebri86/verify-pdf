@@ -14,6 +14,8 @@ HASH_URL = os.getenv(
     "HASH_URL", "https://apg.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/signingHash/v1")
 CERTIFICATE_CHAIN_URL = os.getenv(
     "CERTIFICATE_CHAIN_URL", "https://apg.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChain/v1")
+CERTIFICATE_CHAIN_TERA_URL = os.getenv(
+    "CERTIFICATE_CHAIN_TERA_URL", "https://apg.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChainTera/v1")
 TSA_URL = os.getenv(
     "TSA_URL", "http://timestamp.peruri.co.id/signserver/tsa?workerName=TimeStampSigner1101")
 KEY_ID = os.getenv("KEY_ID", "6d7a673f-ec98-40cf-a1a1-dc9966992c78")

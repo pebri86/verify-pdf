@@ -58,11 +58,11 @@ tags_metadata = [
     },
     {
         "name": "sign",
-        "description": "Service operation for signing PDF document.",
+        "description": "Service operation for Perisai signing PDF document.",
     },
     {
-        "name": "terra",
-        "description": "Service operation for terra (digital stamp) PDF document.",
+        "name": "tera",
+        "description": "Service operation for Peruri TERA (digital stamp) PDF document.",
     },
     {
         "name": "download signed pdf",
@@ -325,10 +325,10 @@ async def sign_pdf(request: Request, req: SigningRequest, response: Response, x_
 
         return result
     
-@app.post("/v1/doc/terra", status_code=201, response_model=SigningResponse, tags=['terra'])
+@app.post("/v1/doc/tera", status_code=201, response_model=SigningResponse, tags=['tera'])
 async def sign_pdf(request: Request, req: SigningRequest, response: Response, x_gateway_apikey: Union[str, None] = Header(default=None), token: security.HTTPBearer = Depends(auth_scheme)):
     async with aiohttp.ClientSession() as session:
-        result = await signing_pdf(req, session, response, jwtoken=token.credentials, key_id=x_gateway_apikey, terra=True)
+        result = await signing_pdf(req, session, response, jwtoken=token.credentials, key_id=x_gateway_apikey, tera=True)
 
         return result
 
