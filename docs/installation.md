@@ -1,6 +1,6 @@
 
 # Installation Manual
-## Signing Adapter Docker Image
+## PDF Verification Docker Image
 ## version 1.0
 
 ## Prerequisites

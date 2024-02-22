@@ -1,5 +1,5 @@
-# PERISAI SIGNADAPTER
-Adapter service for hash sign ( perisai on premise service )
+# PDF Verification
+PDF Digital Signature and E-Meterai Certificate Extractor
 
 ## How to build
 ### prerequisite
@@ -31,7 +31,7 @@ Adapter service for hash sign ( perisai on premise service )
 # make image
 ```
 
-- confirm created image, there's should be image registry.perurica.co.id:443/keysign/signadapter with tag latest
+- confirm created image, there's should be image registry.perurica.co.id:443/keysign/verify-pdf with tag latest
 ```sh
 # docker images
 ```
