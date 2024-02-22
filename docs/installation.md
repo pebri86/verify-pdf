@@ -83,10 +83,6 @@ Before installing Docker Engine for the first time on a new host machine, you ne
 
  ```bash
  $ sudo mkdir -p /root/logs
- $ sudo mkdir -p /root/sharefolder
- $ sudo mkdir -p /root/sharefolder/SIGNED 
- $ sudo mkdir -p /root/sharefolder/UNSIGNED 
- $ sudo mkdir -p /root/sharefolder/SPECIMEN
  ```
  ** Note: On production, these directories may be located in NFS storage or similar.
  
@@ -94,8 +90,8 @@ Before installing Docker Engine for the first time on a new host machine, you ne
 
  ```bash
  $ cd $HOME
- $ mkdir -p signadapter
- $ cd signadapter
+ $ mkdir -p verify-pdf
+ $ cd verify-pdf
  ```
  
 3. Create a docker-compose.yml configuration file to run the container using docker-compose
@@ -113,33 +109,22 @@ Before installing Docker Engine for the first time on a new host machine, you ne
  ```yaml
 version: '3.1'
 services:
-   adapter:
-      container_name: perisai-adapter
-      image: registry.perurica.co.id:443/keysign/signadapter:latest
-      restart: always
-      privileged: true
-      ports: 
-      - "9044:7777"
-      environment:
-         TOKEN_URL: https://apgdev.peruri.co.id:9044/gateway/jwtSandbox/1.0/getJsonWebToken/v1
-         SESSION_INIT_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionInitiate/v1
-         SESSION_VALIDATE_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionValidation/v1
-         HASH_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/signingHashShield/v1
-         CERTIFICATE_CHAIN_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChain/v1
-         CERTIFICATE_CHAIN_TERA_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChainTera/v1
-         TSA_URL: http://timestamp.peruri.co.id/signserver/tsa?workerName=TimeStampSigner1101
-         TZ: Asia/Jakarta
-         UNSIGNED_FOLDER: /sharefolder/UNSIGNED
-         SIGNED_FOLDER: /sharefolder/SIGNED
-         SPC_FOLDER: /sharefolder/SPECIMEN
-         KEYSTORE: /certs
-         WORKER: 4
-         TIMEOUT: 240
-         GRACEFUL_TIMEOUT: 320
-         KEEP_ALIVE: 30
-      volumes:
-      - /root/logs:/logs
-      - /root/sharefolder:/sharefolder
+ adapter:
+  container_name: pdf-verificator
+  image: registry.perurica.co.id:443/keysign/verify-pdf:latest
+  restart: always
+  privileged: true
+  ports: 
+   - "9055:7777"
+  environment:
+   TZ: Asia/Jakarta
+   WORKER: 4
+   TIMEOUT: 240
+   GRACEFUL_TIMEOUT: 320
+   KEEP_ALIVE: 30
+  volumes:
+   - /root/logs:/logs
+
  ```
 4. To run the Docker container:
 
@@ -159,16 +144,16 @@ services:
 
  ```bash
  CONTAINER ID   IMAGE                                                      COMMAND                CREATED        STATUS                       PORTS                              NAMES
-8ba281c25a23   registry.perurica.co.id:443/keysign/signadapter:latest     "/bin/app"             3 hours ago    Up About an hour             0.0.0.0:9044->7777/tcp             perisai-adapter
+8ba281c25a23   registry.perurica.co.id:443/keysign/verify-pdf:latest     "/bin/app"             3 hours ago    Up About an hour             0.0.0.0:9055->7777/tcp             pdf-verificator
  ```
  
 5. To access the documentation using a browser:
  
- Type the following URL into the address bar of your browser: http://vm-or-server-ip-address:9044. You should see a JSON message that says:
+ Type the following URL into the address bar of your browser: http://vm-or-server-ip-address:9055. You should see a JSON message that says:
 
  ```json
  {
-    message: "Welcome to Signing Adapter 1.0.0-RC1",
+    message: "Welcome to PDF Verify 1.0.0-RC1",
     docUrl: "/documentation",
     redocUrl: "/redoc"
 }

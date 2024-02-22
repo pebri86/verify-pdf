@@ -1,29 +1,17 @@
 version: '3.1'
 services:
  adapter:
-  container_name: perisai-adapter
-  image: registry.perurica.co.id:443/keysign/signadapter:latest
+  container_name: pdf-verificator
+  image: registry.perurica.co.id:443/keysign/verify-pdf:latest
   restart: always
   privileged: true
   ports: 
-   - "9044:7777"
+   - "9055:7777"
   environment:
-   TOKEN_URL: https://apgdev.peruri.co.id:9044/gateway/jwtSandbox/1.0/getJsonWebToken/v1
-   SESSION_INIT_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionInitiate/v1
-   SESSION_VALIDATE_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/sessionValidation/v1
-   HASH_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/signingHashShield/v1
-   CERTIFICATE_CHAIN_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChain/v1
-   CERTIFICATE_CHAIN_TERA_URL: https://apgdev.peruri.co.id:9044/gateway/digitalSignatureOnPremise/1.0/getCertificateChainTera/v1
-   TSA_URL: http://timestamp.peruri.co.id/signserver/tsa?workerName=TimeStampSigner1101
    TZ: Asia/Jakarta
-   UNSIGNED_FOLDER: /sharefolder/UNSIGNED
-   SIGNED_FOLDER: /sharefolder/SIGNED
-   SPC_FOLDER: /sharefolder/SPECIMEN
-   KEYSTORE: /certs
    WORKER: 4
    TIMEOUT: 240
    GRACEFUL_TIMEOUT: 320
    KEEP_ALIVE: 30
   volumes:
    - /root/logs:/logs
-   - /root/sharefolder:/sharefolder

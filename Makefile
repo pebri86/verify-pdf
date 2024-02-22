@@ -1,9 +1,5 @@
 all: clean setup base-image image
 setup: requirements.txt
-	mkdir -p sharefolder
-	mkdir -p sharefolder/UNSIGNED
-	mkdir -p sharefolder/SIGNED
-	mkdir -p sharefolder/SPECIMEN
 	mkdir -p logs
 	pip3 install -r requirements.txt
 dev:
@@ -11,7 +7,7 @@ dev:
 prod:
 	ENV=production python3 app/server.py
 image:
-	docker build -t registry.perurica.co.id:443/keysign/signadapter:latest .
+	docker build -t registry.perurica.co.id:443/keysign/verify-pdf:latest .
 base-image:
 	docker build -t pyinstaller-signadapter:3.9-slim base-installer-image
 clean:
