@@ -1,17 +1,17 @@
 version: '3.1'
 services:
- adapter:
-  container_name: pdf-verificator
-  image: registry.perurica.co.id:443/keysign/verify-pdf:latest
-  restart: always
-  privileged: true
-  ports: 
-   - "9055:7777"
-  environment:
-   TZ: Asia/Jakarta
-   WORKER: 4
-   TIMEOUT: 240
-   GRACEFUL_TIMEOUT: 320
-   KEEP_ALIVE: 30
-  volumes:
-   - /root/logs:/logs
+  adapter:
+    container_name: pdf-verificator
+    image: pebri86/verify-pdf:latest
+    restart: always
+    privileged: true
+    ports:
+      - "9055:7777"
+    environment:
+      TZ: Asia/Jakarta
+      WORKER: 4
+      TIMEOUT: 240
+      GRACEFUL_TIMEOUT: 320
+      KEEP_ALIVE: 30
+    volumes:
+      - /root/verify-pdf/logs:/logs

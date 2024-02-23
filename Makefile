@@ -7,7 +7,7 @@ dev:
 prod:
 	ENV=production python3 app/server.py
 image:
-	docker build -t registry.perurica.co.id:443/keysign/verify-pdf:latest .
+	docker build -t pebri86/verify-pdf:latest .
 base-image:
 	docker build -t pyinstaller-signadapter:3.9-slim base-installer-image
 clean:

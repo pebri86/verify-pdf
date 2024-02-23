@@ -1,6 +1,10 @@
+aiohttp==3.9.3
+aiosignal==1.3.1
 annotated-types==0.5.0
 anyio==3.7.1
 asn1crypto==1.5.1
+async-timeout==4.0.3
+attrs==23.2.0
 backports.zoneinfo==0.2.1
 certifi==2023.7.22
 cffi==1.15.1
@@ -9,9 +13,11 @@ click==8.1.7
 cryptography==41.0.4
 exceptiongroup==1.1.3
 fastapi==0.103.1
+frozenlist==1.4.1
 gunicorn==21.2.0
 h11==0.14.0
 idna==3.4
+multidict==6.0.5
 oscrypto==1.3.0
 packaging==23.1
 pycparser==2.21
@@ -31,3 +37,4 @@ tzlocal==5.0.1
 uritools==4.0.2
 urllib3==2.0.5
 uvicorn==0.23.2
+yarl==1.9.4

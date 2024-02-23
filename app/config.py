@@ -13,4 +13,4 @@ LOG_CONFIG = os.getenv("LOG_CONFIG", "/conf/logging.conf")
 # Application Name
 APP_NAME = "Verify PDF Signature"
 # Application Version String
-VERSION = "1.0.0"
+VERSION = "1.1.0"
