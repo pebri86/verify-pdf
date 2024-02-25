@@ -8,6 +8,8 @@ prod:
 	ENV=production python3 app/server.py
 image:
 	docker build -t pebri86/verify-pdf:latest .
+push:
+	docker push pebri86/verify-pdf:latest
 base-image:
 	docker build -t pyinstaller-signadapter:3.9-slim base-installer-image
 clean:

@@ -54,7 +54,7 @@ app.add_middleware(
 )
 
 
-""" @app.middleware("http")
+@app.middleware("http")
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
@@ -72,7 +72,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
                 "message": f"{ErrCode.ERR_99}: {err_msg}",
             },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) """
+        )
 
 
 @app.middleware("http")

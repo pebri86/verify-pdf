@@ -9,7 +9,7 @@ services:
       - "9055:7777"
     environment:
       TZ: Asia/Jakarta
-      WORKER: 4
+      WORKER: 20
       TIMEOUT: 240
       GRACEFUL_TIMEOUT: 320
       KEEP_ALIVE: 30
