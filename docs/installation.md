@@ -111,7 +111,7 @@ version: '3.1'
 services:
  adapter:
   container_name: pdf-verificator
-  image: registry.perurica.co.id:443/keysign/verify-pdf:latest
+  image: registry.perurica.co.id/e-meterai/verify-pdf:latest
   restart: always
   privileged: true
   ports: 
@@ -144,7 +144,7 @@ services:
 
  ```bash
  CONTAINER ID   IMAGE                                                      COMMAND                CREATED        STATUS                       PORTS                              NAMES
-8ba281c25a23   registry.perurica.co.id:443/keysign/verify-pdf:latest     "/bin/app"             3 hours ago    Up About an hour             0.0.0.0:9055->7777/tcp             pdf-verificator
+8ba281c25a23   registry.perurica.co.id/e-meterai/verify-pdf:latest     "/bin/app"             3 hours ago    Up About an hour             0.0.0.0:9055->7777/tcp             pdf-verificator
  ```
  
 5. To access the documentation using a browser:
